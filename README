@@ -4,7 +4,53 @@ Inheritable declarations for Ruby 1.8.6+
   August-September, 2008.
   MIT License.
 
-See specs for examples.
+
+== Trivial example from strokedb:
+
+module StrokeDB
+  module NSURL
+    include Declarations
+  
+    NO_NSURL = Object.new.freeze
+  
+    # Returns the most local NSURL or sets
+    # nsulr in the current scope.
+    def nsurl(nsurl = NO_NSURL)
+      return self.nsurl=(nsurl) if nsurl != NO_NSURL
+      inherited_declarations(:nsurl) do |all_nsurls|
+        all_nsurls.first
+      end
+    end
+  
+    def nsurl=(nsurl)
+      nsurl ? local_declarations_set(:nsurl, nsurl) : local_declarations_remove(:nsurl)
+    end
+  
+    module Ours
+      extend NSURL
+      nsurl StrokeDB::STROKEDB_NSURL
+    end
+  
+    module Theirs
+      extend NSURL
+      nsurl StrokeDB::DEFAULT_NSURL
+    end
+    Others = Theirs # useful const alias
+  end
+end
+
+# usage:
+
+module MyModule
+  extend NSURL
+  nsurl "http://mymodule.com/"
+end
+
+MyModule.nsurl == "http://mymodule.com/" #=> true
+
+  
+  
+== Discussion
 
 We want to have module methods like has_many, validates_presence_of, after_save etc.
 Scenarios:
@@ -36,3 +82,7 @@ Design choices:
 3. don't try to be THAT smart and simply tell user to "extend MyDSL" the module in case of such issue.
 
 We choose to be smartass (option 2). See Declarations::ModuleMethods.
+
+
+
+
