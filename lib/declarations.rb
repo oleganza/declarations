@@ -35,11 +35,11 @@ module Declarations
   def include(mod)
     invalidate_decl_cache!
     mod.extend(Declarations)
-    mod.register_cache(self) # self must be invalidated when mod's ancestors are modified
+    mod.send(:register_cache,self) # self must be invalidated when mod's ancestors are modified
     super
   end
   
-  NOTHING = Object.new.freeze # unique object
+  NOTHING = Object.new.freeze # unique object representing undefined value.
 
   def local_declarations(name, default = NOTHING, &blk)
     decls = (@local_declarations ||= Hash.new(NOTHING))
@@ -68,14 +68,16 @@ module Declarations
     @inherited_declarations ||= {}
     inherited_data = absolutely_all_ancestors.inject([]) do |memo, ancestor|
       ancestor.extend(Declarations)
-      ancestor.register_cache(self)
+      ancestor.send(:register_cache, self)
       local_decls = ancestor.local_declarations(name)
       memo << local_decls unless local_decls.equal?(NOTHING)
       memo
     end
     @inherited_declarations[name] = yield(inherited_data)
   end
-  
+
+private
+
   def register_cache(mod)
     @decl_cached_objects ||= []
     @decl_cached_objects |= [mod]
