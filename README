@@ -1,0 +1,38 @@
+Inheritable declarations for Ruby 1.8.6+ 
+
+  Author: Oleg Andreev <oleganza@gmail.com>
+  August-September, 2008.
+  MIT License.
+
+See specs for examples.
+
+We want to have module methods like has_many, validates_presence_of, after_save etc.
+Scenarios:
+  Given a module A with such declarations, 
+    we include A into B,
+    B has declaration methods and inherits the data from C.
+  Given a class C with such declarations,
+    we inherit D from C,
+    D has declaration methods and inherits the data from C.
+  Given a module A mixed in B, C
+    we add declarations
+    B and C get these declarations and inherit data from A.
+  Given a class C with subclasses D1, D2
+    we add declarations
+    D1, D2 get these declarations and inherit data from C.
+  Given a module A mixed in B, C
+    we modify declarations
+    B and C inherit data from A.
+  Given a class C with subclasses D1, D2
+    we modify declarations
+    D1, D2 inherit data from C.
+
+Issue: when we have an hierarchy of plain modules and extend some of them with a DSL,
+all children must be extended with this DSL, right?
+Design choices:
+1. keep lists of backreferences to children, this gonna waste the memory.
+2. handle Module#method_missing in such way, that it searches ancestors for the desired method
+   and extends the module with the missing declarations.
+3. don't try to be THAT smart and simply tell user to "extend MyDSL" the module in case of such issue.
+
+We choose to be smartass (option 2). See Declarations::ModuleMethods.
