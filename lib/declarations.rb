@@ -22,7 +22,7 @@ require 'absolutely_all_ancestors'
 #
 # Issue: when we have an hierarchy of plain modules and extend some of them with a DSL,
 # all children must be extended with this DSL, right?
-# Design choices:
+# Design options:
 # 1. keep lists of backreferences to children, this gonna waste the memory.
 # 2. handle Module#method_missing in such way, that it searches ancestors for the desired method
 #    and extends the module with the missing declarations.
@@ -102,23 +102,27 @@ private
         return send(meth, *args, &blk)
       end
       
-      # 1. Find nearest module with all
+      # 1. Find nearest module with all 
+      # FIXME: remove this step as redundant?
       mod_with_dsl = absolutely_all_ancestors.detect {|a| a.respond_to?(meth) }
-      super unless mod_with_dsl
+      super(meth, *args, &blk) unless mod_with_dsl
+
       # 2. extended self with all the DSLs found in this module
       all_were_extended = true
       amc = (class<<mod_with_dsl;self;end)
       amc.absolutely_all_ancestors.each do |dsl|
         unless dsl.is_a?(Class)
-          all_were_extended &&= self.is_a?(dsl)
-          extend(dsl) unless self.is_a?(dsl)
+          unless self.is_a?(dsl)
+            all_were_extended = false
+            extend(dsl)
+          end
         end
       end
       # 3. try again if no circular dependency detected
       unless all_were_extended
         return send(meth, *args, &blk) 
       end
-      super
+      super(meth, *args, &blk)
     end
   end # ModuleMethods
 end # Declarations
