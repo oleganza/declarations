@@ -5,6 +5,7 @@ describe Declarations do
   before(:all) do
     # Sample DSL
     abstract_callbacks = Module.new do
+      include Declarations
       def abstract_callback(name, *methods, &blk)
         local_declarations(name, []) do |list|
           list = methods.reverse + list # insert in reversed order for ancestors' order complience.
@@ -23,7 +24,6 @@ describe Declarations do
     
     @after_save = Module.new do
       include abstract_callbacks
-      include Declarations
       
       def after_save(*methods, &blk)
         abstract_callback(:after_save, *methods, &blk)
@@ -35,7 +35,6 @@ describe Declarations do
     
     @before_save = Module.new do
       include abstract_callbacks
-      include Declarations
       
       def before_save(*methods, &blk)
         abstract_callback(:before_save, *methods, &blk)
