@@ -83,8 +83,8 @@ private
     @decl_cached_objects |= [mod]
   end
   
-  # It is rude to invaidate all possible DSLs when only one 
-  # DSL inheritance chain is modified, but ve-ery effective.
+  # It is rude to invalidate all possible DSLs when only one 
+  # DSL inheritance chain is modified, but it is very effective.
   def invalidate_decl_cache!
     return unless @decl_cached_objects
     @decl_cached_objects.each do |mod|
