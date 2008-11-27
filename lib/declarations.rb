@@ -73,7 +73,11 @@ module Declarations
       memo << local_decls unless local_decls.equal?(NOTHING)
       memo
     end
-    @inherited_declarations[name] = yield(inherited_data)
+    @inherited_declarations[name] = if block_given?
+      yield(inherited_data)
+    else
+      inherited_data
+    end
   end
 
 private
