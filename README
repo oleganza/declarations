@@ -2,7 +2,7 @@ Inheritable declarations for Ruby 1.8.6+
 
   Author: Oleg Andreev <oleganza@gmail.com>
   August-September, 2008.
-  MIT License.
+  WTFPL License.
 
 
 == Trivial example from strokedb:
